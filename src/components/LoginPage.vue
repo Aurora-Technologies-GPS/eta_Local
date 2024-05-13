@@ -35,7 +35,7 @@
 
 <script setup>
 	import {ref} from 'vue'
-	import { auth} from './DataConector.js'
+	import { auth, dispositivos, poi} from './DataConector.js'
 
 
 let datosUser=ref({user:"", pass:""})
@@ -53,14 +53,51 @@ if (window.$cookies.isKey('authorized')){
 function consultar(){
 
 	auth(datosUser.value).then(result=>{
-		console.log(result)
+
 		if(result.success){
+          dispositivos(result.hash).then(resultData=>{
+            if(resultData.success){
 
-			console.log("Bienvenido")
-			window.$cookies.set('authorized',result) 
+            let output={data:null, tracker:[], poi:[]}
 
-			window.$cookies.get('authorized')
-			window.location.replace("./dashboard");
+            resultData.list.forEach(elemTracker=>{
+              output.tracker.push({ id:elemTracker.id, label:elemTracker.label})
+            })
+
+            poi(result.hash).then(resul_places=>{              
+
+            if(resul_places){            
+
+            console.log("Bienvenido")
+
+            resul_places.list.forEach(elemPois=>{
+              output.poi.push(elemPois)
+            })
+
+            output.data=result
+
+            console.log(output)
+
+
+            window.$cookies.set('authorized',output) 
+           // window.$cookies.get('authorized')
+            window.location.replace("./dashboard");
+            }else{
+              console.log("ocuurio un error al cargar places")
+            }
+
+            })
+
+
+
+            }else{
+              console.log("error al buscar Trackers")
+            }
+
+    }).catch(error=>{
+      console.log(error)
+    })
+
 		}
 		else{
         claveIncorrecta.value=true

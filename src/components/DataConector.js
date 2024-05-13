@@ -4,11 +4,13 @@ const ip='kolarealb.dev2.rastreo.gs';
 const protocol='https';
 const apiURl=`${protocol}://${ip}/`;
  
+const apiURl2='https://api.dev2.rastreo.gs/'
 
-/* const ip = '10.0.0.28:9090';
- const protocol = 'http';
- const apiURl = `${protocol}://${ip}/`;
-*/
+/*const ip = '10.0.0.28:9090';
+const protocol = 'http';
+const apiURl = `${protocol}://${ip}/`;
+
+const apiURl2='http://localhost:8080/'*/
 
 export async function auth(datosUser){
 
@@ -23,6 +25,41 @@ export async function auth(datosUser){
    return data
   
 }
+
+export async function dispositivos(hash){
+    
+    let params={hash:hash}
+
+   let data;
+ await axios.post(apiURl2+'dispositivos/',params).then(response=>{
+    data=response.data;
+      
+   }).catch(error => {
+      console.log(error)
+
+   });
+   return data
+  
+}
+
+export async function poi(hash){
+    
+    let params={hash:hash}
+
+   let data;
+ await axios.post(apiURl2+'poi/',params).then(response=>{
+    data=response.data;
+      
+   }).catch(error => {
+      console.log(error)
+
+   });
+   return data
+  
+}
+
+
+
 
  export async function get_trayectos(client) {
 
@@ -69,9 +106,9 @@ export async function auth(datosUser){
         tracker_id:4321,
         client_id:trayecto.id_client,
         name:trayecto.name,
-        start_label:trayecto.start.title,
+        start_label:trayecto.start.label,
         start_coor:`${trayecto.start.coor.lat},${trayecto.start.coor.lng}`,
-        end_label:trayecto.end.title,
+        end_label:trayecto.end.label,
         end_coor:`${trayecto.end.coor.lat},${trayecto.end.coor.lng}`,
         description:trayecto.description,
         important:trayecto.important
@@ -80,22 +117,6 @@ export async function auth(datosUser){
     let data
 
     await axios.post(apiURl + 'eta/add_trayecto',params).then(response => {
-        data = response.data;
-
-    }).catch(error => {
-        console.log(error)
-
-    });
-    return data
-
-}
-
-
- export async function data(client) {
-
-    let data
-
-    await axios.get(apiURl + 'eta/datos/'+client.value).then(response => {
         data = response.data;
 
     }).catch(error => {

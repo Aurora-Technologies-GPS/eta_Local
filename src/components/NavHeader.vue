@@ -48,14 +48,17 @@
 
 if (window.$cookies.isKey('authorized')){
 
-  email.value= window.$cookies.get('authorized').login
+  email.value= window.$cookies.get('authorized').data.login
 
  
+}else{
+   window.location.replace("./");
 }
 
   function salir(){
-    console.log("medieron")
+
     window.$cookies.remove('authorized')
+
   }
 
 

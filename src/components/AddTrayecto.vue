@@ -16,7 +16,7 @@
       <select v-model="adding.start" id="inputInicio" class="form-control" required>
 
       <option :value="dato" v-for=" (dato, index) in datos.poi" :key="index">
-        {{dato.title}}
+        {{dato.label}}
       </option>
 
       </select>
@@ -26,7 +26,7 @@
       <select v-model="adding.end" id="inputDestino" class="form-control" required>
 
       <option :value="dato" v-for=" (dato, index) in datos.poi" :key="index">
-        {{dato.title}}
+        {{dato.label}}
       </option>
 
       </select>
@@ -78,13 +78,13 @@
   import { ref } from 'vue';
   import NavHeader from './NavHeader.vue';
 
-  import { data, add_trayecto } from './DataConector.js'; //combo  route_Ways,osrm,
+  import { add_trayecto } from './DataConector.js'; //combo  route_Ways,osrm,
 
 
 
 let datos=ref({ 
     trackers:[ {id: 1, label: 'N/A'}], 
-    poi:[{title: 'N/A', coor: {lat: '0', lng: '0'}}]
+    poi:[{label: 'N/A', coor: {lat: '0', lng: '0'}}]
 })
 
 let saved=ref({
@@ -96,7 +96,20 @@ let id_client=ref(0)
 
 if (window.$cookies.isKey('authorized')){
 
-  id_client.value= window.$cookies.get('authorized').id_client
+  id_client.value= window.$cookies.get('authorized').data.id_client
+  datos.value.trackers=window.$cookies.get('authorized').tracker
+
+ datos.value.poi=[]
+  window.$cookies.get('authorized').poi.forEach(elemPoi=>{
+
+    datos.value.poi.push({
+      label:elemPoi.label,
+      coor:elemPoi.location
+    })
+
+  })
+
+
 
  
 }
@@ -114,10 +127,6 @@ let adding=ref({
 
 })
 
-data(id_client).then(result=>{
-  console.log(result)
-  datos.value=result
-})
 
 /*function cleanAdding(){
   adding.value={
@@ -134,7 +143,8 @@ data(id_client).then(result=>{
 function enviar(){
 
   add_trayecto(adding.value).then(result=>{
-      //cleanAdding()
+
+  //cleanAdding()
 
     if(result){
 

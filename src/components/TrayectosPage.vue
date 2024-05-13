@@ -150,7 +150,7 @@ let id_client=ref(0)
 
 if (window.$cookies.isKey('authorized')){
 
-  id_client.value= window.$cookies.get('authorized').id_client
+  id_client.value= window.$cookies.get('authorized').data.id_client
 
  
 }
