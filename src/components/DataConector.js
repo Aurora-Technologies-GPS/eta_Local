@@ -6,6 +6,7 @@ const apiURl=`${protocol}://${ip}/`;
  
 const apiURl2='https://api.dev2.rastreo.gs/'
 
+
 /*const ip = '10.0.0.28:9090';
 const protocol = 'http';
 const apiURl = `${protocol}://${ip}/`;

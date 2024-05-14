@@ -185,8 +185,13 @@ get_trips(id_client).then(result=>{
 })
 
 function get_tracker_Label(tracker_id){
+  try{
+    return trackers.value.get(tracker_id).label
+  }catch{
+    return " "
+  }
 
-return trackers.value.get(tracker_id).label
+
  
 }
 
