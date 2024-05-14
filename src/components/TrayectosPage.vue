@@ -52,7 +52,7 @@
         </div>
 
             <div class="header_status">
-              <div><strong>{{ dato.name }}</strong></div>
+              <div><strong>{{ dato.name+ " /"+get_tracker_Label(dato.tracker_id) }}</strong></div>
               <div class="d-xl-none d-lg-none  d-md-none d-sm-block d-block">
                     {{"dato.actualTime"}}
                   </div>
@@ -79,14 +79,14 @@
                 </div>
                 <div class="progress " role="progressbar" aria-label="Example with label" aria-valuenow="25"
                   aria-valuemin="0" aria-valuemax="100">
-                  <!-- dato.porcentaje 60-->
+      
                   <div class="estado d-xl-block d-lg-block  d-md-block d-sm-none d-none">
-                  <!--   "dato.actualTime" -->
-                    {{"activo: "+ new Date().toLocaleString()}}
+
+                    {{"activo: "+dato.actualTime }}
                   </div>
 
                   <div class="progress-bar progress-bar-striped progress-bar-animated"
-                    :style="{ width: 50 + '%' }">{{ 50 + " %" }}</div>
+                    :style="{ width: dato.porcentaje + '%' }">{{ dato.porcentaje + " %" }}</div>
                 </div>
                 <div class="col-12" style="text-align: right; font-size:14px; color: #bcbab9; ">
                   {{ dato.end_label }}
@@ -135,23 +135,32 @@
 <script setup>
 import { ref } from 'vue';
 
-import { get_trayectos, ocultar_trayecto } from './DataConector.js';
+import { get_trips, hide_trip } from './manager.js'
 
 import MapaPop from './MapaPop.vue';
 
+let coordenadaMapa = ref({ lat: 0, lng: 0 })
 
 /*let details=ref({})
 
-let coordenadaMapa = ref({ lat: 0, lng: 0 })*/
-
-//import { data } from './DataConector.js'; //combo  route_Ways,osrm,
+*/
 
 let id_client=ref(0)
+const trackers =ref( new Map())
+
 
 if (window.$cookies.isKey('authorized')){
-
   id_client.value= window.$cookies.get('authorized').data.id_client
 
+  try{
+     window.$cookies.get('authorized').tracker.forEach(elemTrack=>{
+      trackers.value.set(elemTrack.id, {id: elemTrack.id, label:elemTrack.label});
+     })
+
+  }catch(error){
+    console.log(error)
+  }
+ 
  
 }
 
@@ -168,15 +177,26 @@ let mapaShowing = ref(false)
 let dataOut= ref({ usuario: {}, viajes: [] })
 
 
+//obtener lista Trayectos
+get_trips(id_client).then(result=>{ 
+
+  dataOut.value=result
+
+})
+
+function get_tracker_Label(tracker_id){
+
+return trackers.value.get(tracker_id).label
+ 
+}
+
+//ocultar trayecto
 function hide_trayecto(id){
 
-  ocultar_trayecto(id).then(result=>{
-
-    console.log(result)
+  hide_trip(id).then(result=>{
 
     if (result) {
-
-    removed.value.succed=result
+      removed.value.succed=result
 
     if (result.changedRows>0) {
       removed.value.message="Guardado Correctamente"
@@ -185,54 +205,24 @@ function hide_trayecto(id){
        removed.value.message="Ocurrio Un Error al Guardar"
     }
     
-
     setTimeout(()=>{
        window.location.replace("./");
     },2000)
 
     }
-
   })
 
 }
 
-get_trayectos(id_client).then(result=>{
-       // console.log(result)
-        dataOut.value=result
-})
-
 function showPop(coor) {
-  // coordenadaMapa.value = coor
-
-  console.log(coor)
+  coordenadaMapa.value = coor
   mapaShowing.value = true
 }
-/*
+
 function hidePop() {
   mapaShowing.value = false
 }
-
-const parametros={
-    tracker_id:689130,
-    from:new Date(2024, 2, 25, 10, 15, 0, 0).toISOString(),
-    to:new Date(2024, 2, 25, 12, 30, 0, 0).toISOString()
-}
-
-let origen= '-69.638386,18.428805'
-let destino= '-70.00060333333333,18.485558333333334'
-
-let eta_osrm
-
-details.value.parametros=(parametros)
-details.value.trayecto=({origen,destino})
-
-let temp=ref("klkjd")
-let loca=0
-
-async function trackers_state(lat, lng){
-  let output=lng+','+lat
-  return output
-}
+/*
 
 route_Ways(parametros.tracker_id, parametros.from, parametros.to).then(wayroutes=>{
 if (wayroutes) {
@@ -250,43 +240,18 @@ carusel.value =setInterval(()=>{
     if(loca>=countMax){ 
       loca=0      
     } 
-     update(loca);
-},1000)
-   }
-  
-  })
-
-}
-
-});
-
-function update(tim){
-
-data("noelito").then(resDB=>{
-    if(resDB){
-        
-        try{
-
-          if(resDB){
-          resDB.viajes.forEach((element) => {
-
-            trackers_state(temp.value[tim].lat,temp.value[tim].lng).then(actual_Locat=>{                 
+trackers_state(temp.value[tim].lat,temp.value[tim].lng).then(actual_Locat=>{                 
                   osrm(actual_Locat,destino).then(actual_eta_osrm=>{
                     if(actual_eta_osrm){
 
                   
 let salida= ((((eta_osrm.routes[0].distance)-(actual_eta_osrm.routes[0].distance))*100)/eta_osrm.routes[0].distance).toFixed(2)
 
-console.log("***")
+
 console.log(eta_osrm.routes[0].distance)
 console.log(actual_eta_osrm.routes[0].distance)
-console.log("***")
-if(salida>100){
-  salida=100
-}else if(salida<0){
-  salida=0
-}
-dataOut.value={usuario:"test",viajes:[]}
+
+
 
 details.value.eta=eta_osrm.routes
 details.value.etaRestante=actual_eta_osrm.routes
@@ -306,35 +271,6 @@ dataOut.value.viajes.push({
   eta: eta_osrm.routes,
   etaRestante:actual_eta_osrm.routes,
   porcentaje:salida
-                 })
-   
-                }
-              })
-            })
-          })
-
-          // console.log(details.value)
-          // console.log(dataOut.value)
- 
-        }
-
-        }catch(err){
-          console.log(err)
-        }
-           
-    }
-})
-
-
-}
-
-update();
-
-// setInterval(()=>{
-//   // console.log("se Actualizo")
-//   update()
-// }, 19000)
-
 
 function evaluarEstatus(labelestatus, porcet){
 
@@ -365,16 +301,6 @@ function convertirTiempo(segundos) {
   return salida
 
 }
-
-function getTiempoLlegada(tiempoViaje, tiempoActual) {
-
-//fake date
-
-  //let tiempoLlegada = new Date
-let tiempoLlegada=new Date(tiempoActual)
-  tiempoLlegada = new Date(tiempoLlegada.getTime() + tiempoViaje * 1000)
-
-  return tiempoLlegada
 
 }*/
 </script>

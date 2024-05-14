@@ -52,9 +52,12 @@ if (window.$cookies.isKey('authorized')){
 
 function consultar(){
 
+
 	auth(datosUser.value).then(result=>{
 
-		if(result.success){
+  try{
+    
+    if(result.success){
           dispositivos(result.hash).then(resultData=>{
             if(resultData.success){
 
@@ -98,10 +101,17 @@ function consultar(){
       console.log(error)
     })
 
-		}
-		else{
+    }
+    else{
         claveIncorrecta.value=true
       }
+
+    
+  }
+  catch(error){
+    console.log(error)
+  }
+
 		
 	})
 	
