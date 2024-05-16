@@ -1,17 +1,17 @@
 import axios from 'axios';
 
-const ip='kolarealb.dev2.rastreo.gs';
+/*const ip='kolarealb.dev2.rastreo.gs';
 const protocol='https';
 const apiURl=`${protocol}://${ip}/`;
  
-const apiURl2='https://api.dev2.rastreo.gs/'
+const apiURl2='https://api.dev2.rastreo.gs/'*/
 
 
-/*const ip = '10.0.0.28:9090';
+const ip = '10.0.0.28:9090';
 const protocol = 'http';
 const apiURl = `${protocol}://${ip}/`;
 
-const apiURl2='http://localhost:8080/'*/
+const apiURl2='http://localhost:8080/'
 
 
 
@@ -126,9 +126,9 @@ export async function tracker_state(hash, tracker_id) {
         client_id:trayecto.id_client,
         name:trayecto.name,
         start_label:trayecto.start.label,
-        start_coor:`${trayecto.start.coor.lat},${trayecto.start.coor.lng}`,
+        start_coor:`${trayecto.start.coor.lng},${trayecto.start.coor.lat}`,
         end_label:trayecto.end.label,
-        end_coor:`${trayecto.end.coor.lat},${trayecto.end.coor.lng}`,
+        end_coor:`${trayecto.end.coor.lng},${trayecto.end.coor.lat}`,
         description:trayecto.description,
         important:trayecto.important
     }
@@ -146,15 +146,15 @@ export async function tracker_state(hash, tracker_id) {
 
 }
 
-/*
-
-export async function route_Ways(tracker_id, from, to) {
+ export async function completar_trayecto(id) {
 
     let data
 
-    const params = { tracker_id: tracker_id, from: from, to: to }
+    const params = {        
+        id:id
+    }
 
-    await axios.post(apiURl + 'eta/route_Ways', params).then(response => {
+    await axios.post(apiURl + 'eta/completar_trayecto/', params).then(response => {
         data = response.data;
 
     }).catch(error => {
@@ -164,6 +164,7 @@ export async function route_Ways(tracker_id, from, to) {
     return data
 
 }
+
 
 
 export async function osrm(origen, destino) {
@@ -182,8 +183,6 @@ export async function osrm(origen, destino) {
     return data
 
 }
-
-*/
 
 
 

@@ -56,8 +56,8 @@
               <div class="d-xl-none d-lg-none  d-md-none d-sm-block d-block">
                     {{"dato.actualTime"}}
                   </div>
-                  <!-- "evaluarEstatus(dato.estatus, dato.porcentaje)" -->
-              <div> {{ "En Transito" }}<i @click="showPop(dato.actual_Location)" class="ubication bi bi-geo-alt-fill"></i>
+              <div> {{ evaluarEstatus(dato.porcentaje, dato.id,dato.complete, dato.etaRestante[0].distance) }}
+                <i @click="showPop(dato.actual_Location)" class="ubication bi bi-geo-alt-fill"></i>
               </div>
 
             </div>
@@ -86,7 +86,7 @@
                   </div>
 
                   <div class="progress-bar progress-bar-striped progress-bar-animated"
-                    :style="{ width: dato.porcentaje + '%' }">{{ dato.porcentaje + " %" }}</div>
+                    :style="{ width: evaluarporcentaje(dato.porcentaje) + '%' }">{{ evaluarporcentaje(dato.porcentaje) + " %" }}</div>
                 </div>
                 <div class="col-12" style="text-align: right; font-size:14px; color: #bcbab9; ">
                   {{ dato.end_label }}
@@ -97,19 +97,19 @@
 
               <div class="col header_status">
                 <button type="button" class="btn btn-circle btn-xl d-xl-block d-lg-block  d-md-block d-sm-none d-none">
-                  <span class="tituloBola">{{ 50 }}</span>{{ unidad }}
+                  <span class="tituloBola">{{ convertirTiempo(dato.etaRestante[0].duration)}}</span>{{ unidad }}
                   <img class="etaBT" src="../assets/etaBola.png">
                 </button>
                 <div class="text-center" style="border-right:dashed #bcbab9; padding-right: 20px;">
                   <span style="font-size:14px; color: #bcbab9;">Restante</span>
                   <br>
-                  <span>{{ 25 + " KM" }} </span>
+                  <span>{{ distance_kilomentros(dato.etaRestante[0].distance)  + " KM" }} </span>
                 </div>
 
                 <div class="text-center">
                   <span style="font-size:14px; color: #bcbab9;">llegada </span>
                   <br>
-                  <span>{{ 26 }}</span>
+                  <span>{{ llegada(dato.etaRestante[0].duration) }}</span>
                 </div>
 
 
@@ -133,20 +133,31 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref,onMounted } from 'vue';
 
 import { get_trips, hide_trip } from './manager.js'
 
+import { completar_trayecto } from './DataConector.js'; 
+
 import MapaPop from './MapaPop.vue';
 
+let caruselLineTime=ref()
+
 let coordenadaMapa = ref({ lat: 0, lng: 0 })
-
-/*let details=ref({})
-
-*/
-
 let id_client=ref(0)
 const trackers =ref( new Map())
+
+let unidad = ref("min")
+
+let removed=ref({
+  message:"No Se guardaron los Datos",
+  succed:false
+})
+
+
+
+let mapaShowing = ref(false)
+let dataOut= ref({ usuario: {}, viajes: [] })
 
 
 if (window.$cookies.isKey('authorized')){
@@ -164,25 +175,27 @@ if (window.$cookies.isKey('authorized')){
  
 }
 
-let unidad = ref("min")
+onMounted(()=>{
 
-let removed=ref({
-  message:"No Se guardaron los Datos",
-  succed:false
-})
-
-//let carusel=ref();
-
-let mapaShowing = ref(false)
-let dataOut= ref({ usuario: {}, viajes: [] })
-
-
-//obtener lista Trayectos
-get_trips(id_client).then(result=>{ 
+  //obtener lista Trayectos
+  get_trips(id_client).then(result=>{
 
   dataOut.value=result
 
 })
+
+  caruselLineTime.value=setInterval(()=>{
+
+   get_trips(id_client).then(result=>{
+
+  dataOut.value=result
+
+})
+
+ },11500)
+
+})
+
 
 function get_tracker_Label(tracker_id){
   try{
@@ -227,74 +240,11 @@ function showPop(coor) {
 function hidePop() {
   mapaShowing.value = false
 }
-/*
-
-route_Ways(parametros.tracker_id, parametros.from, parametros.to).then(wayroutes=>{
-if (wayroutes) {
-  temp.value=wayroutes.list;
-  let countMax=wayroutes.list.length
-
-  details.value.countMax=countMax
-
-  osrm(origen,destino).then(osrm=>{
-   if(osrm){
-    eta_osrm=osrm
-
-carusel.value =setInterval(()=>{
-    loca=loca+1;
-    if(loca>=countMax){ 
-      loca=0      
-    } 
-trackers_state(temp.value[tim].lat,temp.value[tim].lng).then(actual_Locat=>{                 
-                  osrm(actual_Locat,destino).then(actual_eta_osrm=>{
-                    if(actual_eta_osrm){
-
-                  
-let salida= ((((eta_osrm.routes[0].distance)-(actual_eta_osrm.routes[0].distance))*100)/eta_osrm.routes[0].distance).toFixed(2)
-
-
-console.log(eta_osrm.routes[0].distance)
-console.log(actual_eta_osrm.routes[0].distance)
-
-
-
-details.value.eta=eta_osrm.routes
-details.value.etaRestante=actual_eta_osrm.routes
-details.value.actual_Locatation=actual_Locat
-
-dataOut.value.viajes.push({
-  id: element.id,
-  tracker_id: element.tracker_id,
-  titulo: element.titulo,
-  origen: element.origen,
-  destino: element.destino,
-  estatus: element.estatus,
-  start: element.start,
-  end: element.end,
-  actual_Location:{ lat: temp.value[tim].lat, lng: temp.value[tim].lng },
-  actualTime:temp.value[tim].get_time,
-  eta: eta_osrm.routes,
-  etaRestante:actual_eta_osrm.routes,
-  porcentaje:salida
-
-function evaluarEstatus(labelestatus, porcet){
-
- let outLabelStatus= labelestatus
-
-  if(porcet>95){
-
-    outLabelStatus="Llego"
-
-  }
-
-  return outLabelStatus
-
-}
 
 function convertirTiempo(segundos) {
   let salida
 
-  salida = Math.round(segundos / 60)
+  salida = Math.round(segundos / 60) || 0
   unidad.value = "min"
 
   if (salida >= 60) {
@@ -307,7 +257,59 @@ function convertirTiempo(segundos) {
 
 }
 
-}*/
+
+function llegada(segundos){
+
+  let manana=new Date(new Date().getTime()+segundos*1000)
+  manana=manana.toLocaleTimeString('en-US')
+
+  return manana
+
+}
+
+function distance_kilomentros(distance) {
+  let salida=(distance/1000).toFixed(2) || 0
+
+  return salida
+
+}
+
+function evaluarporcentaje(porcet){
+  let porc=porcet
+
+  if(porc<0)
+    porc=0
+  return porc
+}
+
+
+function evaluarEstatus( porcet, id,complete, distanciarestante){
+  let outLabelStatus= "En Trasito"
+
+  if (complete) {
+    return "llego"
+
+
+  }else{
+     
+
+    if (porcet<0) {
+      outLabelStatus="Fuera de Ruta"
+
+    }
+    if  (distanciarestante<1000) {
+
+
+    outLabelStatus="Llegando"
+
+    completar_trayecto(id).then(result => console.log(result))
+    }
+  }
+  return outLabelStatus
+
+}
+
+
 </script>
 
 <style scoped>

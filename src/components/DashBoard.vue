@@ -10,9 +10,12 @@
   import TrayectosPage from './TrayectosPage.vue';
 
   if (window.$cookies.isKey('authorized')){
-    
-console.log("bienvenido")
-  }else{
-   window.location.replace("./");
+    console.log("bienvenido")
+  }else if(!window.$cookies.isKey('authorized')){
+    setTimeout(()=>{
+      window.location.replace("./");
+    },2000)
+
+
  }
 </script>

@@ -46,7 +46,10 @@ if (window.$cookies.isKey('authorized')){
 
   console.log(window.$cookies.get('authorized'))
 
-  window.location.replace("./dashboard");
+            setTimeout(()=>{
+              window.location.replace("./dashboard");
+            },100)
+
 }
 
 
@@ -56,6 +59,8 @@ function consultar(){
 	auth(datosUser.value).then(result=>{
 
   try{
+
+    console.log(result)
     
     if(result.success){
           dispositivos(result.hash).then(resultData=>{
@@ -79,12 +84,16 @@ function consultar(){
 
             output.data=result
 
-            console.log(output)
+           // console.log(output)
 
 
             window.$cookies.set('authorized',output) 
            // window.$cookies.get('authorized')
-            window.location.replace("./dashboard");
+            
+            setTimeout(()=>{
+              window.location.replace("./dashboard");
+            },100)
+
             }else{
               console.log("ocuurio un error al cargar places")
             }
