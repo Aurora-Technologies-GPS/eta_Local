@@ -12,6 +12,7 @@ const protocol = 'http';
 const apiURl = `${protocol}://${ip}/`;
 
 const apiURl2='http://localhost:8080/'
+const apiURl3='http://localhost:3024/'
 
 
 
@@ -86,6 +87,23 @@ export async function tracker_state(hash, tracker_id) {
     let data
 
     await axios.get(apiURl + 'eta/get_trayectos/'+client.value).then(response => {
+        data = response.data;
+
+    }).catch(error => {
+        console.log(error)
+
+    });
+    return data
+
+}
+
+ export async function get_trayectos_v2(hash, client) {
+
+    let data
+
+    const params = { hash:hash, client_id: client}
+
+    await axios.post(apiURl3 + 'get_trayectos/',params).then(response => {
         data = response.data;
 
     }).catch(error => {
