@@ -1,6 +1,7 @@
 <template>
 <div>
 <!-- login -->
+
 <section class="login">
 
 <div class="contenidoLogin text-center">
