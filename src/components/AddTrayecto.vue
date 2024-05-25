@@ -12,31 +12,51 @@
 
   <div class="form-row">
     <div class="form-group col-md-6">
-      <strong><label for="inputInicio">ORIGEN</label></strong>
-      <select v-model="adding.start" id="inputInicio" class="form-control" required>
+      <strong><label for="inputName">Nombre</label></strong>
+      <input v-model="adding.name" type="text" class="form-control" id="inputName" required>
+
+    </div>
+    <div class="form-group col-md-6">
+      <strong><label for="inputDestino">Description</label></strong>
+        <input v-model="adding.description" type="text" class="form-control" id="inputName" >
+    </div>
+  </div>
+        <div class="form-row">
+    <div class="form-group col-md-3">
+      <strong><label for="inputDestino">ORIGEN</label></strong>
+      <select v-model="adding.start" id="inputDestino" class="form-control" required>
 
       <option :value="dato" v-for=" (dato, index) in datos.poi" :key="index">
-        {{dato.label}}
+        {{dato}}
       </option>
 
       </select>
     </div>
-    <div class="form-group col-md-6">
+        <div class="form-group col-md-3">
       <strong><label for="inputDestino">DESTINO</label></strong>
       <select v-model="adding.end" id="inputDestino" class="form-control" required>
 
       <option :value="dato" v-for=" (dato, index) in datos.poi" :key="index">
-        {{dato.label}}
+        {{dato}}
       </option>
 
       </select>
     </div>
+    <div class="form-group col-md-3">
+      <strong><label for="departureDue">Tiempo de salida</label></strong>
+
+        <input  v-model="adding.departureDue" class="form-control datepicker" name="from" placeholder="Selected starting date" type="datetime-local"  />
+  
+    </div>
+    <div class="form-group col-md-3">
+      <strong><label for="arrivalDue">Tiempo de LLegada</label></strong>
+
+        <input v-model="adding.arrivalDue" class="form-control datepicker" name="from" placeholder="Selected starting date" type="datetime-local"  />
+  
+    </div>
   </div>
     <div class="form-row">
-    <div class="form-group col-md-6">
-      <strong><label for="inputName">Nombre</label></strong>
-      <input v-model="adding.name" type="text" class="form-control" id="inputName" required>
-    </div>
+
     <div class="form-group col-md-4">
       <strong><label for="inputState">Unidad</label></strong>
       <select v-model="adding.tracker" class="form-control" required>
@@ -47,24 +67,14 @@
 
       </select>
     </div>
-    <div class="form-group col-md-2">
-      <strong><label for="inputcomment">Comment</label></strong>
-      <input type="text" class="form-control" id="inputcomment">
+        <div class="form-group col-md-8">
+      <strong><label for="inputName">Comentario</label></strong>
+      <input v-model="adding.description" type="text" class="form-control" id="inputName" required>
     </div>
-  </div>
-  <div class="form-group">
-    <strong><label for="inputAddress">Description</label></strong>
-    <input v-model="adding.description" type="text" class="form-control" id="inputAddress" placeholder="Description del Trayecto (Opcional)">
+
   </div>
 
-  <div class="form-group">
-    <div class="form-check">
-      <input v-model="adding.important" class="form-check-input" type="checkbox" id="gridCheck">
-      <label class="form-check-label" for="gridCheck">
-        Importante
-      </label>
-    </div>
-  </div>
+
   <div class="text-center mb-5">
   <button type="submit" class="btn btn-primary">Guardar</button>
   </div>
@@ -84,7 +94,7 @@
 
 let datos=ref({ 
     trackers:[ {id: 1, label: 'N/A'}], 
-    poi:[{label: 'N/A', coor: {lat: '0', lng: '0'}}]
+    poi:[]
 })
 
 let saved=ref({
@@ -102,10 +112,7 @@ if (window.$cookies.isKey('authorized')){
  datos.value.poi=[]
   window.$cookies.get('authorized').poi.forEach(elemPoi=>{
 
-    datos.value.poi.push({
-      label:elemPoi.label,
-      coor:elemPoi.location
-    })
+    datos.value.poi.push(elemPoi)
 
   })
 
@@ -119,6 +126,8 @@ let adding=ref({
 
   name:null,
   id_client:id_client.value,
+  departureDue:"2023-06-12T19:30",
+  arrivalDue:"2023-06-12T19:30",
   tracker:null,
   start:null,
   end:null,

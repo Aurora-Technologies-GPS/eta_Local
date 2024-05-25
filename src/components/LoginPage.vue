@@ -11,7 +11,7 @@
 
 <div  class="searchBar   mt-2 rounded-pill" style="position: relative;">
 <i class="bi bi-person-fill"></i>
-<input v-model="datosUser.user" class="inputsearchBar"  placeholder="Usuario" type="text">
+<input v-model="datosUser.username" class="inputsearchBar"  placeholder="Usuario" type="text">
 <i v-if="claveIncorrecta" class="bi bi-exclamation-circle" style="position: absolute; right: 5%; margin: 5px; font-size: larger; color: red;"></i> 
 </div>
 
@@ -21,7 +21,7 @@
 <br>	
 <div  class="searchBar rounded-pill" style="position: relative;">
 <i class="bi bi-key-fill"></i>
-<input class="inputsearchBar" v-model="datosUser.pass"  placeholder="Contrasena" type="password">
+<input class="inputsearchBar" v-model="datosUser.password"  placeholder="Contrasena" type="password">
 <i v-if="claveIncorrecta" class="bi bi-exclamation-circle" style="position: absolute; right: 5%; margin: 5px; font-size: larger; color: red;"></i> 
 </div>	
 	
@@ -39,7 +39,7 @@
 	import { auth, dispositivos, poi} from './DataConector.js'
 
 
-let datosUser=ref({user:"", pass:""})
+let datosUser=ref({username:"", password:""})
 
 let claveIncorrecta=ref(false)
 
@@ -48,7 +48,7 @@ if (window.$cookies.isKey('authorized')){
   console.log(window.$cookies.get('authorized'))
 
             setTimeout(()=>{
-              window.location.replace("./dashboard");
+            //  window.location.replace("./dashboard");
             },100)
 
 }
@@ -60,11 +60,9 @@ function consultar(){
 	auth(datosUser.value).then(result=>{
 
   try{
-
-    console.log(result)
     
-    if(result.success){
-          dispositivos(result.hash).then(resultData=>{
+    if(result){
+          dispositivos(result).then(resultData=>{
             if(resultData.success){
 
             let output={data:null, tracker:[], poi:[]}
@@ -73,13 +71,13 @@ function consultar(){
               output.tracker.push({ id:elemTracker.id, label:elemTracker.label})
             })
 
-            poi(result.hash).then(resul_places=>{              
+            poi(result).then(resul_places=>{              
 
             if(resul_places){            
 
             console.log("Bienvenido")
 
-            resul_places.list.forEach(elemPois=>{
+            resul_places.forEach(elemPois=>{
               output.poi.push(elemPois)
             })
 
@@ -92,7 +90,7 @@ function consultar(){
            // window.$cookies.get('authorized')
             
             setTimeout(()=>{
-              window.location.replace("./dashboard");
+             // window.location.replace("./dashboard");
             },100)
 
             }else{
@@ -129,86 +127,6 @@ function consultar(){
 
 </script>
 
-<!-- <script setup>
-  
-
-
-if (window.$cookies.isKey('auth_popular')){
-  datosUser.value.user=window.$cookies.get('auth_popular').user
-  datosUser.value.pass=window.$cookies.get('auth_popular').pass
-  datosUser.value.autenticado=window.$cookies.get('auth_popular').autenticado
-
-  console.log(datosUser.value.autenticado)
-}
-
-
-
-
-function consultar(){
-
-if (!window.$cookies.isKey('auth_popular')) {
-
-if ((datosUser.value.user !=null) && (datosUser.value.user !=null) ) {
-
-  auth(datosUser.value).then(result=>{
-
-    if(result.success){
-    datosUser.value.autenticado=true;
-    datosUser.value.id=result.id
-    datosUser.value.id_client=result.id_client
-    datosUser.value.id_pannel=result.id_pannel
-    datosUser.value.userName=result.name
-    datosUser.value.domain=result.domain
-    datosUser.value.key=result.key
-    datosUser.value.legal_name=result.legal_name
-
-   window.$cookies.set('auth_popular', datosUser.value)
-
-
-}else{
-    authInternal({ username: datosUser.value.user, pass:datosUser.value.pass}).then(resultUsers=>{
-
-      if(resultUsers){
-        if(resultUsers.length>0){
-
-          console.log(resultUsers[0])
-
-              datosUser.value.autenticado=true;
-              datosUser.value.id=resultUsers[0].id
-              datosUser.value.id_client=resultUsers[0].client_id
-              datosUser.value.id_pannel=21
-              datosUser.value.userName=resultUsers[0].first_name
-              datosUser.value.domain="Aurora.com.do"
-              datosUser.value.key="1234567"
-              datosUser.value.legal_name="Popular"
-              window.$cookies.set('auth_popular', datosUser.value)
-
-        }
-          claveIncorrecta.value=true
-       
-
-      }else{
-        claveIncorrecta.value=true
-      }
-    })
-  
-}
-}).catch(error => {console.log(error)});
-
-  }else{
-    console.log('favor llene los campos')
-    claveIncorrecta.value=true
-      return null
-  }
-
-} 
-}
-
-
-
-/*fin dasboard*/
-
-</script> -->
 
 <style scoped>
 /* para el login*/
